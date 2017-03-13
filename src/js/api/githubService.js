@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Promise from 'bluebird';
 import config from '../../config/config.json';
+import _merge from 'lodash/merge';
 
 const pullRequestData = {
   pullRequests: [],
@@ -8,13 +9,10 @@ const pullRequestData = {
 };
 
 function apiCall(url, headers = {}) {
-  const options = { headers };
-  if (config.username) {
-    options.auth = {
-      username: config.username,
-      password: config.password
-    };
+  if (config.token) {
+    _merge(headers, { Authorization: `token ${config.token}` });
   }
+  const options = { headers };
   return axios.get(url, options);
 }
 

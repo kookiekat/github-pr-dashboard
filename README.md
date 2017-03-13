@@ -10,15 +10,14 @@ Copy the file `src/config/config.json.sample` to `src/config/config.json`. If yo
 
 Under the `repos` option, list all the repositories from which you want to see pull requests. The repository should be given in the format `owner/repoName`, e.g. `joeattardi/github-pr-dashboard`.
 
-GitHub places a very strict rate limit on unauthenticated requests. If you run into this problem, you will need to add your GitHub username and password in `config.json`.
+GitHub places a very strict rate limit on unauthenticated requests. If you run into this problem, you will need to add [auth token](https://developer.github.com/enterprise/2.8/v3/auth/#basic-authentication) in `config.json`.
 
 ## Example `config.json`
 
 ```json
 {
   "apiBaseUrl": "https://api.github.com",
-  "username": "joeattardi",
-  "password": "123456",
+  "token": "1234abcd5678efgh9012ijkl",
   "repos": [
     "joeattardi/github-pr-dashboard",
     "joeattardi/promise-poller",
@@ -66,8 +65,7 @@ Use the `config.json.sample` file to create a new file called `config.json` with
 ### Setup parameters
  
  * "apiBaseUrl" : Base Rest Api which will be used
- * "username": Account username to login
- * "password": Account password to login
+ * "toke": Auth Token for [Basic Auth](https://developer.github.com/enterprise/2.8/v3/auth/#basic-authentication)
  * "groupByRepo":  Use this option with true value for group the results by repository ( true | false )
  * "repos": Repositories that the application should fetch the requests
  * "comments": Displaying 👍 and 👎 Comment Counts
