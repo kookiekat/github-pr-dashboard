@@ -1,5 +1,6 @@
 import { getAllRepos, getAllPullRequests, getPullRequestDetails } from '../api/githubService';
-
+import _remove from 'lodash/remove';
+import _includes from 'lodash/includes';
 import config from '../../config/config.json';
 
 export const ActionTypes = {
@@ -89,10 +90,15 @@ export function loadPullRequests(value) {
       .then(repos => {
         getAllPullRequests(repos)
           .then(pullRequestData => {
+            _remove(pullRequestData.pullRequests, pr =>
+              !_includes(users, pr.user.login));
+            return pullRequestData;
+          }).then(pullRequestData => {
             dispatch(addPullRequests(pullRequestData.pullRequests));
             dispatch(addFailedRepos(pullRequestData.failedRepos));
             return pullRequestData;
-          }).then(pullRequestData => {
+          })
+          .then(pullRequestData => {
             pullRequestData.pullRequests.forEach(pullRequest => {
               const repo = pullRequest.base.repo;
               dispatch(loadPullRequestDetails(
