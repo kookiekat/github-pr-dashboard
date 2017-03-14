@@ -2,6 +2,7 @@ import axios from 'axios';
 import Promise from 'bluebird';
 import config from '../../config/config.json';
 import _merge from 'lodash/merge';
+import _uniq from 'lodash/uniq';
 
 const pullRequestData = {
   pullRequests: [],
@@ -96,5 +97,36 @@ export function getAllPullRequests(repoNames) {
 
     pullRequestData.pullRequests = pullRequests;
     return pullRequestData;
+  });
+}
+
+function loadEvents(user) {
+  const url = `${config.apiBaseUrl}/users/${user}/events/public`;
+  const promise = apiCall(url);
+  return promise;
+}
+
+export function getAllRepos(users) {
+  let pullRequestRepos = [];
+
+  const promises = users.map(user =>
+    Promise.resolve(loadEvents(user)).reflect()
+  );
+
+  return Promise.all(promises).then(results => {
+    let pubEvents;
+
+    results.forEach(result => {
+      if (result.isFulfilled()) {
+        pubEvents = result.value().data;
+        pubEvents.forEach(pubEvent => {
+          if (pubEvent.type === 'PullRequestEvent') {
+            pullRequestRepos = pullRequestRepos.concat(pubEvent.repo.name);
+          }
+        });
+      }
+    });
+    console.log(pullRequestRepos);
+    return _uniq(pullRequestRepos);
   });
 }

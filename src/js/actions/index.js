@@ -1,4 +1,4 @@
-import { getAllPullRequests, getPullRequestDetails } from '../api/githubService';
+import { getAllRepos, getAllPullRequests, getPullRequestDetails } from '../api/githubService';
 
 import config from '../../config/config.json';
 
@@ -53,7 +53,7 @@ export function loadPullRequestDetails(owner, repo, number) {
         dispatch(updatePullRequest(pullRequestData));
       });
 }
-
+/*
 export function loadPullRequests(value) {
   return dispatch => {
     dispatch({ type: ActionTypes.START_LOADING });
@@ -73,6 +73,33 @@ export function loadPullRequests(value) {
               repo.owner.login, repo.name, pullRequest.number
           ));
         });
+      });
+  };
+}
+*/
+
+export function loadPullRequests(value) {
+  return dispatch => {
+    dispatch({ type: ActionTypes.START_LOADING });
+    let users = config.users;
+    if (value) {
+      users = value;
+    }
+    return getAllRepos(users)
+      .then(repos => {
+        getAllPullRequests(repos)
+          .then(pullRequestData => {
+            dispatch(addPullRequests(pullRequestData.pullRequests));
+            dispatch(addFailedRepos(pullRequestData.failedRepos));
+            return pullRequestData;
+          }).then(pullRequestData => {
+            pullRequestData.pullRequests.forEach(pullRequest => {
+              const repo = pullRequest.base.repo;
+              dispatch(loadPullRequestDetails(
+                repo.owner.login, repo.name, pullRequest.number
+              ));
+            });
+          });
       });
   };
 }

@@ -10,6 +10,7 @@ import configureStore from './store';
 import '../css/main.scss';
 
 config.repos = config.repos.sort();
+config.users = config.users.sort();
 
 const store = configureStore();
 
