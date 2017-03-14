@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import Main from './components/Main';
-import { loadPullRequests } from './actions';
+import { loadPullRequestsFromSearch } from './actions';
 import config from '../config/config.json';
 import configureStore from './store';
 
@@ -13,7 +13,8 @@ config.repos = config.repos.sort();
 
 const store = configureStore();
 
-store.dispatch(loadPullRequests(undefined));
+// store.dispatch(loadPullRequests(undefined));
+store.dispatch(loadPullRequestsFromSearch());
 
 ReactDOM.render(
   <Provider store={store}>

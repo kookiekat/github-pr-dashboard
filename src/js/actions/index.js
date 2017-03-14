@@ -1,4 +1,6 @@
-import { getAllPullRequests, getPullRequestDetails } from '../api/githubService';
+import { getAllPullRequests,
+  getPullRequestDetails,
+  searchForPullRequests } from '../api/githubService';
 
 import config from '../../config/config.json';
 
@@ -62,6 +64,29 @@ export function loadPullRequests(value) {
       repos = value;
     }
     return getAllPullRequests(repos)
+      .then(pullRequestData => {
+        dispatch(addPullRequests(pullRequestData.pullRequests));
+        dispatch(addFailedRepos(pullRequestData.failedRepos));
+        return pullRequestData;
+      }).then(pullRequestData => {
+        pullRequestData.pullRequests.forEach(pullRequest => {
+          const repo = pullRequest.base.repo;
+          dispatch(loadPullRequestDetails(
+              repo.owner.login, repo.name, pullRequest.number
+          ));
+        });
+      });
+  };
+}
+
+export function loadPullRequestsFromSearch() {
+  return dispatch => {
+    dispatch({ type: ActionTypes.START_LOADING });
+    const query = config.query;
+    const sort = config.sort;
+    const order = config.order;
+
+    return searchForPullRequests(query, sort, order)
       .then(pullRequestData => {
         dispatch(addPullRequests(pullRequestData.pullRequests));
         dispatch(addFailedRepos(pullRequestData.failedRepos));

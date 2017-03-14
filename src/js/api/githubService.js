@@ -98,3 +98,37 @@ export function getAllPullRequests(repoNames) {
     return pullRequestData;
   });
 }
+
+function executeIssueSearch(query, sort, order) {
+  const url = `${config.apiBaseUrl}/search/issues?q=${query}&s=${sort}&o=${order}`;
+  const promise = apiCall(url);
+  promise.catch(() => pullRequestData.failedRepos.push(`${query}`));
+  return promise;
+}
+
+export function searchForPullRequests(query, sort = 'created', order = 'desc') {
+  pullRequestData.failedRepos = [];
+
+  const promise = Promise.resolve(executeIssueSearch(query, sort, order)).reflect();
+
+  return promise.then(results => {
+    let pullRequests = [];
+
+    results.forEach(result => {
+      if (result.isFulfilled()) {
+        pullRequests = pullRequests.concat(result.value().data);
+      }
+    });
+
+    if (config.groupByRepo === true) {
+      pullRequests.sort((a, b) => b.base.repo.name < a.base.repo.name
+      && new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+    } else {
+      pullRequests.sort((a, b) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+    }
+
+    pullRequestData.pullRequests = pullRequests;
+    return pullRequestData;
+  });
+}
